@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,7 +28,7 @@
     h1 {
       font-size: 42px;
       text-shadow: 2px 2px 10px #ff4d6d;
-      margin: 0 0 22px 0;
+      margin: 0 0 18px 0;
       z-index: 2;
       position: relative;
     }
@@ -55,27 +55,7 @@
     #yesBtn { background: #ff4d6d; color: white; }
     #noBtn  { background: #ffffffcc; color: black; }
 
-    /* Photo */
-    #couplePhotoWrap {
-      display: none;
-      z-index: 2;
-      position: relative;
-      margin-top: 16px;
-    }
-
-    #couplePhoto {
-      width: min(420px, 85vw);
-      border-radius: 22px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
-      animation: popIn 700ms ease forwards;
-    }
-
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.85); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-
-    /* Hearts */
+    /* Floating hearts */
     .heart {
       position: absolute;
       font-size: 20px;
@@ -86,11 +66,11 @@
     }
 
     @keyframes floatUp {
-      0%   { transform: translateY(105vh); opacity: 1; }
-      100% { transform: translateY(-10vh);  opacity: 0; }
+      0%   { transform: translateY(105vh) scale(1); opacity: 1; }
+      100% { transform: translateY(-10vh)  scale(1.1); opacity: 0; }
     }
 
-    /* Fireworks */
+    /* Fireworks canvas */
     canvas {
       position: fixed;
       inset: 0;
@@ -137,7 +117,7 @@
       line-height: 1.3;
     }
 
-    /* Hidden audio iframe */
+    /* Hidden music iframe */
     #musicFrame {
       width: 0;
       height: 0;
@@ -146,12 +126,62 @@
       left: -9999px;
       top: -9999px;
     }
+
+    /* Gallery after YES */
+    #galleryWrap{
+      display: none;
+      z-index: 2;
+      position: relative;
+      margin-top: 16px;
+      width: min(820px, 92vw);
+    }
+
+    #galleryTitle{
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 10px rgba(255,77,109,0.8);
+    }
+
+    #gallery{
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding: 14px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.18);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #gallery::-webkit-scrollbar{
+      height: 8px;
+    }
+    #gallery::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,0.6);
+      border-radius: 999px;
+    }
+
+    .galleryImg{
+      width: min(340px, 78vw);
+      height: auto;
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      scroll-snap-align: center;
+      flex: 0 0 auto;
+      animation: popIn 700ms ease forwards;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 
 <body>
-
-  <!-- Start Music Overlay -->
+  <!-- Tap to start music -->
   <div id="musicOverlay">
     <div id="musicOverlayInner">
       <button id="startMusicBtn">Tap to start music 🎵</button>
@@ -168,17 +198,24 @@
     <button id="noBtn">No 💔</button>
   </div>
 
-  <div id="couplePhotoWrap">
-    <img id="couplePhoto" src="./us.jpg" alt="Us ❤️" />
+  <!-- Gallery (shows after YES) -->
+  <div id="galleryWrap">
+    <div id="galleryTitle">Us ❤️</div>
+    <div id="gallery">
+      <img class="galleryImg" src="./us1.jpg" alt="Us 1">
+      <img class="galleryImg" src="./us2.jpg" alt="Us 2">
+      <img class="galleryImg" src="./us3.jpg" alt="Us 3">
+      <img class="galleryImg" src="./us4.jpg" alt="Us 4">
+      <!-- Add more like this:
+      <img class="galleryImg" src="./us5.jpg" alt="Us 5">
+      -->
+    </div>
   </div>
 
   <canvas id="fireworks"></canvas>
 
   <!-- Background Music -->
-  <iframe
-    id="musicFrame"
-    allow="autoplay; encrypted-media">
-  </iframe>
+  <iframe id="musicFrame" allow="autoplay; encrypted-media"></iframe>
 
   <script>
     const noBtn = document.getElementById("noBtn");
@@ -186,24 +223,22 @@
     const buttonsWrap = document.getElementById("buttonsWrap");
     const mainText = document.getElementById("mainText");
 
-    // Photo
-    const photoWrap = document.getElementById("couplePhotoWrap");
-
     // Music
     const musicOverlay = document.getElementById("musicOverlay");
     const startMusicBtn = document.getElementById("startMusicBtn");
     const musicFrame = document.getElementById("musicFrame");
 
-    // Giveon - Favorite Mistake
+    // Giveon - Favorite Mistake (YouTube ID)
     const YT_ID = "EKUwr6y4TqU";
 
+    // Start music after tap (browser requirement)
     startMusicBtn.addEventListener("click", () => {
       musicFrame.src =
         `https://www.youtube.com/embed/${YT_ID}?autoplay=1&mute=0&loop=1&playlist=${YT_ID}`;
       musicOverlay.style.display = "none";
     });
 
-    // NO hover effect
+    // NO hover: NO shrinks, YES grows
     noBtn.addEventListener("mouseenter", () => {
       noBtn.style.transform = "scale(0.7)";
       yesBtn.style.transform = "scale(1.2)";
@@ -214,17 +249,17 @@
       yesBtn.style.transform = "scale(1)";
     });
 
-    // Hearts
+    // Floating hearts
     function createHeart() {
       const heart = document.createElement("div");
       heart.className = "heart";
       heart.textContent = "❤️";
       heart.style.left = Math.random() * 100 + "vw";
       heart.style.fontSize = (Math.random() * 18 + 16) + "px";
+      heart.style.animationDuration = (Math.random() * 2 + 3) + "s";
       document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 5000);
+      setTimeout(() => heart.remove(), 5200);
     }
-
     setInterval(createHeart, 280);
 
     // Fireworks
@@ -245,7 +280,8 @@
           x, y,
           angle: Math.random() * Math.PI * 2,
           speed: Math.random() * 5 + 2,
-          alpha: 1
+          alpha: 1,
+          radius: Math.random() * 2 + 2
         });
       }
     }
@@ -260,7 +296,7 @@
         p.alpha -= 0.02;
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
         ctx.fill();
 
@@ -269,15 +305,19 @@
 
       requestAnimationFrame(animateFireworks);
     }
-
     animateFireworks();
 
     // YES click
     yesBtn.addEventListener("click", () => {
       mainText.innerHTML = "I Love You! My Valentine 💖";
-      buttonsWrap.style.display = "none";
-      photoWrap.style.display = "block";
 
+      // Remove buttons after YES
+      buttonsWrap.style.display = "none";
+
+      // Show gallery
+      document.getElementById("galleryWrap").style.display = "block";
+
+      // Fireworks loop
       setInterval(() => {
         createFirework(
           Math.random() * canvas.width,
@@ -286,6 +326,5 @@
       }, 450);
     });
   </script>
-
 </body>
 </html>
